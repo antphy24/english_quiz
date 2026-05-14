@@ -21,8 +21,8 @@
 
 <p id="feedback"></p>
 
-<div style="position:fixed;bottom:20px;right:20px;">
-  <button id="nextBtn" onclick="nextQuestion()" disabled style="padding:15px 30px;font-size:18px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Next</button>
+<div style="margin-top:18px;text-align:right;">
+  <button id="nextBtn" onclick="nextQuestion()" disabled style="padding:18px 32px;font-size:18px;background:#4CAF50;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">Next</button>
 </div>
 
 <script>
@@ -172,7 +172,7 @@ function loadQuestion() {
   let optionsHTML = "";
   q.options.forEach((opt, i) => {
     optionsHTML += `<button onclick="checkAnswer(${i})" 
-      style="display:block;margin:10px 0;width:100%;padding:15px;font-size:16px;border:2px solid #333;border-radius:5px;cursor:pointer;" id="btn${i}">
+      style="display:block;margin:14px 0;width:100%;padding:28px;font-size:18px;border:2px solid #333;border-radius:8px;cursor:pointer;line-height:1.2;text-align:left;" id="btn${i}">
       ${opt}
     </button>`;
   });
