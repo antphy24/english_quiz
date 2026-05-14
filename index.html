@@ -170,7 +170,7 @@ function loadQuestion() {
   let optionsHTML = "";
   q.options.forEach((opt, i) => {
     optionsHTML += `<button onclick="checkAnswer(${i})" 
-      style="display:block;margin:6px 0;width:100%" id="btn${i}">
+      style="display:block;margin:10px 0;width:100%;padding:15px;font-size:16px;border:2px solid #333;border-radius:5px;cursor:pointer;" id="btn${i}">
       ${opt}
     </button>`;
   });
