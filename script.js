@@ -1,11 +1,14 @@
-let quizPool = []; 
+let currentQuizKey = "";
+let currentQuizList = [];
+let userHistory = []; // Tracks user selections for the review panel
+
 let current = 0;
 let score = 0;
-let time = 0;
-let answered = false;
+let countdown = 60;
 let timerInterval;
+let answered = false;
 
-// Fisher-Yates Shuffle Algorithm
+// 1. UTILITIES: Shuffling
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -14,33 +17,71 @@ function shuffle(array) {
     return array;
 }
 
-function startTimer() {
-    timerInterval = setInterval(() => {
-        time++;
-        const mins = Math.floor(time / 60);
-        const secs = time % 60;
-        document.getElementById("timer").innerText = 
-            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }, 1000);
+// 2. VIEW SWITCHER
+function switchView(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+    document.getElementById(viewId).classList.remove('hidden');
 }
 
-function initQuiz() {
-    // 1. Shuffle master list and pick 20
-    const shuffledMaster = shuffle([...questions]);
-    quizPool = shuffledMaster.slice(0, 20);
+// 3. STORAGE SYSTEMS
+function getStats(key) {
+    const data = localStorage.getItem(`quiz_${key}`);
+    return data ? JSON.parse(data) : { highscore: 0, attempts: [] };
+}
+
+function saveResult(key, scoreValue) {
+    const stats = getStats(key);
+    if (scoreValue > stats.highscore) stats.highscore = scoreValue;
+    stats.attempts.unshift({ score: scoreValue, date: new Date().toLocaleDateString() });
+    localStorage.setItem(`quiz_${key}`, JSON.stringify(stats));
+}
+
+// 4. MAIN MENU RENDER
+function showMenu() {
+    switchView('menu-screen');
+    clearInterval(timerInterval);
+    const container = document.getElementById("menu-categories");
+    container.innerHTML = "";
+
+    Object.keys(window.quizData).forEach(key => {
+        const module = window.quizData[key];
+        const stats = getStats(key);
+        
+        const card = document.createElement("div");
+        card.className = "menu-card";
+        
+        let attemptsHTML = stats.attempts.slice(0, 2).map(a => `<li>${a.score}/20 (${a.date})</li>`).join('');
+        if (!attemptsHTML) attemptsHTML = "<li>No attempts yet</li>";
+
+        card.innerHTML = `
+            <h4>${module.title}</h4>
+            <div class="highscore-badge">🏆 High Score: ${stats.highscore}/20</div>
+            <div class="history-box">
+                <p>Recent Attempts:</p>
+                <ul>${attemptsHTML}</ul>
+            </div>
+            <button class="primary-btn sm" onclick="startQuiz('${key}')">Start Module</button>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// 5. QUIZ CORE MANAGEMENT
+function startQuiz(key) {
+    currentQuizKey = key;
+    const rawQuestions = window.quizData[key].questions;
+    currentQuizList = shuffle([...rawQuestions]).slice(0, 20);
     
-    // 2. Reset stats
     current = 0;
     score = 0;
-    time = 0;
+    userHistory = [];
     
-    // 3. Start systems
-    startTimer();
+    switchView('quiz-screen');
     loadQuestion();
 }
 
 function loadQuestion() {
-    const qData = quizPool[current];
+    const qData = currentQuizList[current];
     const optionsDiv = document.getElementById("options");
     const nextBtn = document.getElementById("nextBtn");
     const feedback = document.getElementById("feedback");
@@ -48,74 +89,134 @@ function loadQuestion() {
     answered = false;
     nextBtn.disabled = true;
     feedback.classList.add("hidden");
-
+    
     document.getElementById("question").innerText = qData.q;
-    document.getElementById("progressText").innerText = `Question ${current + 1} / ${quizPool.length}`;
-    document.getElementById("progressBar").style.width = `${(current / quizPool.length) * 100}%`;
+    document.getElementById("progressText").innerText = `Question ${current + 1} / ${currentQuizList.length}`;
+    document.getElementById("progressBar").style.width = `${(current / currentQuizList.length) * 100}%`;
+    document.getElementById("score").innerText = `Score: ${score}`;
 
-    // Shuffle options for this specific question
     const shuffledOptions = shuffle([...qData.options]);
-
     optionsDiv.innerHTML = "";
-    shuffledOptions.forEach((opt) => {
+    
+    shuffledOptions.forEach(opt => {
         const btn = document.createElement("button");
         btn.className = "option-btn";
         btn.innerText = opt;
-        btn.onclick = () => checkAnswer(opt, qData.answer, btn);
+        btn.onclick = () => checkAnswer(opt, false);
         optionsDiv.appendChild(btn);
     });
+
+    runClock();
 }
 
-function checkAnswer(selectedText, correctText, btn) {
+function runClock() {
+    clearInterval(timerInterval);
+    countdown = 60;
+    const timerDisplay = document.getElementById("timer");
+    timerDisplay.innerText = `${countdown}s`;
+    timerDisplay.classList.remove("danger");
+
+    timerInterval = setInterval(() => {
+        countdown--;
+        timerDisplay.innerText = `${countdown}s`;
+        if (countdown <= 10) timerDisplay.classList.add("danger");
+        
+        if (countdown <= 0) {
+            clearInterval(timerInterval);
+            checkAnswer(null, true); // Timeout trigger
+        }
+    }, 1000);
+}
+
+function checkAnswer(selectedOption, isTimeout) {
     if (answered) return;
     answered = true;
+    clearInterval(timerInterval);
 
+    const qData = currentQuizList[current];
     const allBtns = document.querySelectorAll(".option-btn");
     const feedbackArea = document.getElementById("feedback");
+    const feedbackText = document.getElementById("feedback-text");
     const nextBtn = document.getElementById("nextBtn");
-    
-    allBtns.forEach(b => {
-        b.disabled = true;
-        if (b.innerText === correctText) b.classList.add("correct");
+
+    // Track state for the detailed review screen
+    userHistory.push({
+        question: qData.q,
+        selected: isTimeout ? "[Time expired]" : selectedOption,
+        correct: qData.answer,
+        explanation: qData.explanation,
+        status: !isTimeout && selectedOption === qData.answer ? 'correct' : 'incorrect'
     });
 
-    if (selectedText === correctText) {
+    allBtns.forEach(b => {
+        b.disabled = true;
+        if (b.innerText === qData.answer) b.classList.add("correct");
+    });
+
+    if (isTimeout) {
+        feedbackText.innerHTML = "<strong>⏳ Time's Up!</strong>";
+    } else if (selectedOption === qData.answer) {
         score++;
-        document.getElementById("score").innerText = `Score: ${score}`;
-        document.getElementById("feedback-text").innerHTML = "<strong>✅ Correct!</strong>";
+        feedbackText.innerHTML = "<strong>✅ Correct!</strong>";
+        allBtns.forEach(b => { if(b.innerText === selectedOption) b.classList.add("correct"); });
     } else {
-        btn.classList.add("incorrect");
-        document.getElementById("feedback-text").innerHTML = "<strong>❌ Incorrect</strong>";
+        feedbackText.innerHTML = "<strong>❌ Incorrect</strong>";
+        allBtns.forEach(b => { if(b.innerText === selectedOption) b.classList.add("incorrect"); });
     }
 
-    document.getElementById("explanation").innerText = quizPool[current].explanation;
+    document.getElementById("score").innerText = `Score: ${score}`;
+    document.getElementById("explanation").innerText = qData.explanation;
     feedbackArea.classList.remove("hidden");
     nextBtn.disabled = false;
 }
 
-// Attach event listener to the Next Button
+// 6. TERMINAL RESULTS & COMPREHENSIVE REVIEWS
+function finishQuiz() {
+    clearInterval(timerInterval);
+    saveResult(currentQuizKey, score);
+    
+    document.getElementById("final-score").innerText = `${score} / ${currentQuizList.length}`;
+    document.getElementById("quiz-title-summary").innerText = window.quizData[currentQuizKey].title;
+    
+    document.getElementById("review-section").classList.add("hidden");
+    switchView('results-screen');
+}
+
+function generateReviewDOM() {
+    const container = document.getElementById("review-container");
+    container.innerHTML = "";
+
+    userHistory.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = `review-item ${item.status}`;
+        row.innerHTML = `
+            <p class="review-q"><strong>#${index + 1}: ${item.question}</strong></p>
+            <p>Your answer: <span class="badge ${item.status}">${item.selected}</span></p>
+            ${item.status === 'incorrect' ? `<p>Correct selection: <span class="badge correct">${item.correct}</span></p>` : ''}
+            <p class="review-exp">💡 ${item.explanation}</p>
+        `;
+        container.appendChild(row);
+    });
+}
+
+// 7. LISTENERS & EVENTS
 document.getElementById("nextBtn").addEventListener("click", () => {
     current++;
-    if (current < quizPool.length) {
+    if (current < currentQuizList.length) {
         loadQuestion();
     } else {
-        showResults();
+        finishQuiz();
     }
 });
 
-function showResults() {
-    clearInterval(timerInterval);
-    const container = document.querySelector(".app-container");
-    container.innerHTML = `
-        <div class="card" style="text-align:center; padding: 40px 20px;">
-            <h1>Quiz Complete!</h1>
-            <p style="font-size:64px;">🏆</p>
-            <h2>${score} / ${quizPool.length}</h2>
-            <p>Time: ${document.getElementById("timer").innerText}</p>
-            <button class="primary-btn" onclick="location.reload()">Restart Quiz</button>
-        </div>
-    `;
-}
+document.getElementById("quit-btn").addEventListener("click", () => {
+    if(confirm("Are you sure you want to quit this run?")) showMenu();
+});
 
-// Start the app
-window.onload = initQuiz;
+document.getElementById("review-toggle-btn").addEventListener("click", () => {
+    generateReviewDOM();
+    document.getElementById("review-section").classList.toggle("hidden");
+});
+
+// Boot Application
+window.onload = showMenu;
