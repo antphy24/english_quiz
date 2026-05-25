@@ -25,8 +25,18 @@ function switchView(viewId) {
 
 // 3. STORAGE SYSTEMS
 function getStats(key) {
-    const data = localStorage.getItem(`quiz_${key}`);
-    return data ? JSON.parse(data) : { highscore: 0, attempts: [] };
+    try {
+        const data = localStorage.getItem(`quiz_${key}`);
+        if (data) {
+            const parsed = JSON.parse(data);
+            if (parsed && Array.isArray(parsed.attempts)) {
+                return parsed;
+            }
+        }
+    } catch (e) {
+        console.error("Error reading localStorage:", e);
+    }
+    return { highscore: 0, attempts: [] };
 }
 
 function saveResult(key, scoreValue) {
@@ -42,6 +52,12 @@ function showMenu() {
     clearInterval(timerInterval);
     const container = document.getElementById("menu-categories");
     container.innerHTML = "";
+
+    // SAFE CHECK: Ensure window.quizData exists before running loops
+    if (!window.quizData || Object.keys(window.quizData).length === 0) {
+        container.innerHTML = "<p style='padding:20px; text-align:center;'>No quiz modules found. Please check your questions.js file.</p>";
+        return;
+    }
 
     Object.keys(window.quizData).forEach(key => {
         const module = window.quizData[key];
@@ -81,7 +97,6 @@ function startQuiz(key) {
 }
 
 function loadQuestion() {
-    // FIXED: Changed quizPool to currentQuizList
     const qData = currentQuizList[current];
     const optionsDiv = document.getElementById("options");
     const nextBtn = document.getElementById("nextBtn");
@@ -134,7 +149,6 @@ function checkAnswer(selectedOption, isTimeout, clickedBtn) {
     answered = true;
     clearInterval(timerInterval);
 
-    // FIXED: Changed quizPool to currentQuizList
     const qData = currentQuizList[current];
     const allBtns = document.querySelectorAll(".option-btn");
     const feedbackArea = document.getElementById("feedback");
@@ -155,11 +169,9 @@ function checkAnswer(selectedOption, isTimeout, clickedBtn) {
 
     // 3. Handle visual UI changes based on actions
     if (isTimeout) {
-        // TIMEOUT: Keep right answers secret, hide explanation area content
         feedbackText.innerHTML = "<strong>⏳ Time's Up! Proceed to the next question.</strong>";
         document.getElementById("explanation").innerText = ""; 
     } else {
-        // USER CLICKED: Reveal answer highlights and explanation text
         allBtns.forEach(b => {
             if (b.innerText === qData.answer) b.classList.add("correct");
         });
