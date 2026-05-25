@@ -1,5 +1,5 @@
 let currentQuizKey = "";
-let currentQuizList = [];
+let currentQuizList = []; // This is our active 20-question playlist
 let userHistory = []; // Tracks user selections for the review panel
 
 let current = 0;
@@ -81,7 +81,8 @@ function startQuiz(key) {
 }
 
 function loadQuestion() {
-    const qData = quizPool[current];
+    // FIXED: Changed quizPool to currentQuizList
+    const qData = currentQuizList[current];
     const optionsDiv = document.getElementById("options");
     const nextBtn = document.getElementById("nextBtn");
     const feedback = document.getElementById("feedback");
@@ -91,8 +92,8 @@ function loadQuestion() {
     feedback.classList.add("hidden");
     
     document.getElementById("question").innerText = qData.q;
-    document.getElementById("progressText").innerText = `Question ${current + 1} / ${quizPool.length}`;
-    document.getElementById("progressBar").style.width = `${(current / quizPool.length) * 100}%`;
+    document.getElementById("progressText").innerText = `Question ${current + 1} / ${currentQuizList.length}`;
+    document.getElementById("progressBar").style.width = `${(current / currentQuizList.length) * 100}%`;
     document.getElementById("score").innerText = `Score: ${score}`;
 
     const shuffledOptions = shuffle([...qData.options]);
@@ -102,7 +103,6 @@ function loadQuestion() {
         const btn = document.createElement("button");
         btn.className = "option-btn";
         btn.innerText = opt;
-        // FIXED: We now pass 'btn' as the third argument here
         btn.onclick = () => checkAnswer(opt, false, btn);
         optionsDiv.appendChild(btn);
     });
@@ -124,7 +124,7 @@ function runClock() {
         
         if (countdown <= 0) {
             clearInterval(timerInterval);
-            checkAnswer(null, true); // Timeout trigger
+            checkAnswer(null, true, null); // Timeout trigger
         }
     }, 1000);
 }
@@ -134,7 +134,8 @@ function checkAnswer(selectedOption, isTimeout, clickedBtn) {
     answered = true;
     clearInterval(timerInterval);
 
-    const qData = quizPool[current];
+    // FIXED: Changed quizPool to currentQuizList
+    const qData = currentQuizList[current];
     const allBtns = document.querySelectorAll(".option-btn");
     const feedbackArea = document.getElementById("feedback");
     const feedbackText = document.getElementById("feedback-text");
@@ -167,8 +168,7 @@ function checkAnswer(selectedOption, isTimeout, clickedBtn) {
             score++;
             feedbackText.innerHTML = "<strong>✅ Correct!</strong>";
         } else {
-            // FIXED: clickedBtn is now correctly scoped and will not crash the page
-            clickedBtn.classList.add("incorrect");
+            if (clickedBtn) clickedBtn.classList.add("incorrect");
             feedbackText.innerHTML = "<strong>❌ Incorrect</strong>";
         }
         
