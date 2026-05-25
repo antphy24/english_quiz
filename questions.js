@@ -1,4 +1,7 @@
-const questions = [
+window.quizData = window.quizData || {};
+window.quizData.english = {
+    title: "EnglishScore",
+    questions: [
 
 { q: "Only after the new policy was implemented ______ the extent of its impact on employee productivity.", options: ["did managers realize", "managers realized", "had managers realized", "managers have realized"], answer: "did managers realize", explanation: "'Only after' requires inversion → auxiliary ('did') comes before subject ('managers'). Without inversion, the sentence is not grammatically correct in formal English." },
 
@@ -199,4 +202,5 @@ const questions = [
     answer: "did they realize", 
     explanation: "'Little' at the beginning requires inversion → 'did they realize'. This emphasizes the unexpected nature of the situation." 
   }
-];
+]
+};
