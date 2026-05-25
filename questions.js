@@ -201,6 +201,66 @@ window.quizData.english = {
     options: ["they realized", "did they realize", "they did realize", "realized they"], 
     answer: "did they realize", 
     explanation: "'Little' at the beginning requires inversion → 'did they realize'. This emphasizes the unexpected nature of the situation." 
-  }
+  },
+
+{ q: "Only when the results were carefully examined ______ clear that the initial assumptions had been flawed.", options: ["it became", "did it become", "it did become", "became it"], answer: "did it become", explanation: "'Only when' at the beginning requires inversion → 'did it become'. Without inversion, the sentence is grammatically incorrect in formal English." },
+
+{ q: "Had the negotiations been handled more effectively, the agreement ______ reached much sooner.", options: ["will be", "would have been", "would be", "is"], answer: "would have been", explanation: "Third conditional: past condition + past result → 'would have been reached'. Passive form is required because 'agreement' is the receiver of the action." },
+
+{ q: "The evidence, ______ from multiple independent sources, strongly supports the theory.", options: ["gathering", "was gathered", "gathered", "to gather"], answer: "gathered", explanation: "Reduced relative clause: 'which was gathered' → 'gathered'. Past participle expresses passive meaning." },
+
+{ q: "Seldom ______ such a high level of cooperation between competing organizations.", options: ["we observe", "do we observe", "we observed", "did we observed"], answer: "do we observe", explanation: "Negative adverb 'seldom' requires inversion → 'do we observe'. Present tense fits general statement." },
+
+{ q: "The company is believed ______ substantial profits before the market declined.", options: ["to make", "to have made", "making", "to be making"], answer: "to have made", explanation: "Perfect infinitive ('to have made') shows the action happened before the reporting verb 'is believed'." },
+
+{ q: "No sooner ______ the new system installed than several issues began to emerge.", options: ["was", "had been", "did", "has been"], answer: "had been", explanation: "'No sooner had + subject + past participle' is the correct inversion pattern." },
+
+{ q: "Despite ______ numerous challenges, the project was completed successfully.", options: ["to face", "facing", "faced", "having faced"], answer: "having faced", explanation: "'Having faced' shows completed action before the result, making it more precise than simple 'facing'." },
+
+{ q: "The board recommended that the proposal ______ revised before final approval.", options: ["is", "was", "be", "being"], answer: "be", explanation: "Subjunctive: 'recommend that' + base verb → 'be revised'." },
+
+{ q: "So ______ the demand for the product that the company struggled to keep up with orders.", options: ["great was", "was great", "great is", "is great"], answer: "great was", explanation: "'So + adjective + verb + subject' structure → 'So great was the demand'." },
+
+{ q: "He acted as though he ______ the entire situation under control.", options: ["has", "had", "having", "have"], answer: "had", explanation: "'As though' (unreal meaning) → past simple ('had')." },
+
+{ q: "Little ______ how significant the changes would become in the long term.", options: ["they expected", "did they expect", "they have expected", "expected they"], answer: "did they expect", explanation: "'Little' triggers inversion → 'did they expect'." },
+
+{ q: "The results indicate that further adjustments ______ required to improve efficiency.", options: ["are", "is", "be", "being"], answer: "be", explanation: "Formal subjunctive after 'indicate that' → 'be required'." },
+
+{ q: "Having ______ the proposal in detail, the committee decided to postpone the decision.", options: ["review", "reviewed", "reviewing", "to review"], answer: "reviewed", explanation: "Participle clause: 'Having reviewed' shows completed prior action." },
+
+{ q: "Not only ______ the process inefficient, but it also increased operational costs.", options: ["was", "it was", "was it", "it has been"], answer: "was it", explanation: "'Not only' triggers inversion: 'was it inefficient...'." },
+
+{ q: "She is thought ______ responsible for initiating the changes in policy.", options: ["to be", "be", "being", "been"], answer: "to be", explanation: "'Is thought to be' is a standard passive reporting structure." },
+
+{ q: "Were the company to expand into new markets, it ______ significant risks.", options: ["will face", "would face", "faces", "faced"], answer: "would face", explanation: "Conditional inversion ('Were...') → result clause uses 'would'." },
+
+{ q: "He insisted that the issue ______ addressed immediately.", options: ["is", "was", "be", "being"], answer: "be", explanation: "Subjunctive form after 'insist' → 'be addressed'." },
+
+{ q: "It was only after the report had been published ______ its implications became widely understood.", options: ["that", "when", "which", "where"], answer: "that", explanation: "Cleft sentence: 'It was only after... that...'." },
+
+{ q: "Had she taken the opportunity earlier, she ______ in a much stronger position now.", options: ["will be", "would be", "would have been", "is"], answer: "would be", explanation: "Mixed conditional: past action → present result → 'would be'." },
+
+{ q: "The system proved capable ______ handling a significantly larger workload.", options: ["of", "to", "for", "in"], answer: "of", explanation: "'Capable of' is fixed." },
+
+{ q: "The strategy was implemented successfully, ______ a noticeable improvement in performance.", options: ["leading to", "led to", "to lead", "lead"], answer: "leading to", explanation: "Participle clause shows result → 'leading to'." },
+
+{ q: "Scarcely ______ the results announced when criticism began to surface.", options: ["had", "was", "did", "has"], answer: "had", explanation: "'Scarcely had... when...' inversion pattern." },
+
+{ q: "He regrets ______ the warning signs earlier in the project.", options: ["not noticing", "not to notice", "did not notice", "not notice"], answer: "not noticing", explanation: "'Regret' + gerund for past actions." },
+
+{ q: "The measures ______ were insufficient to solve the underlying issue.", options: ["taken", "taking", "to take", "take"], answer: "taken", explanation: "Reduced relative clause: 'which were taken' → 'taken'." },
+
+{ q: "So ______ his explanation that no one questioned its accuracy.", options: ["convincing was", "was convincing", "convincing is", "is convincing"], answer: "convincing was", explanation: "Inversion after 'so': 'So convincing was his explanation...'." },
+
+{ q: "He appears ______ unaware of the risks involved in the decision.", options: ["to be", "be", "being", "been"], answer: "to be", explanation: "'Appear' is followed by 'to be'." },
+
+{ q: "Only through careful planning ______ able to achieve the desired outcome.", options: ["they were", "were they", "they have been", "they had been"], answer: "were they", explanation: "'Only through...' requires inversion → 'were they able'." },
+
+{ q: "The results, though ______, did not provide sufficient evidence to support the claim.", options: ["suggest", "suggesting", "suggestive", "suggested"], answer: "suggestive", explanation: "'Suggestive' is the correct adjective meaning 'indicating but not conclusive'." },
+
+{ q: "He would rather ______ the matter privately than discuss it publicly.", options: ["handle", "to handle", "handling", "handled"], answer: "handle", explanation: "'Would rather' + base verb → 'handle'." },
+
+{ q: "The final outcome depends largely ______ how effectively the strategy is executed.", options: ["in", "on", "at", "for"], answer: "on", explanation: "'Depend on' is the correct collocation." }
 ]
 };
