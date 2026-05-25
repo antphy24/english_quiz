@@ -81,7 +81,7 @@ function startQuiz(key) {
 }
 
 function loadQuestion() {
-    const qData = currentQuizList[current];
+    const qData = quizPool[current];
     const optionsDiv = document.getElementById("options");
     const nextBtn = document.getElementById("nextBtn");
     const feedback = document.getElementById("feedback");
@@ -91,8 +91,8 @@ function loadQuestion() {
     feedback.classList.add("hidden");
     
     document.getElementById("question").innerText = qData.q;
-    document.getElementById("progressText").innerText = `Question ${current + 1} / ${currentQuizList.length}`;
-    document.getElementById("progressBar").style.width = `${(current / currentQuizList.length) * 100}%`;
+    document.getElementById("progressText").innerText = `Question ${current + 1} / ${quizPool.length}`;
+    document.getElementById("progressBar").style.width = `${(current / quizPool.length) * 100}%`;
     document.getElementById("score").innerText = `Score: ${score}`;
 
     const shuffledOptions = shuffle([...qData.options]);
@@ -102,7 +102,8 @@ function loadQuestion() {
         const btn = document.createElement("button");
         btn.className = "option-btn";
         btn.innerText = opt;
-        btn.onclick = () => checkAnswer(opt, false);
+        // FIXED: We now pass 'btn' as the third argument here
+        btn.onclick = () => checkAnswer(opt, false, btn);
         optionsDiv.appendChild(btn);
     });
 
@@ -128,18 +129,18 @@ function runClock() {
     }, 1000);
 }
 
-function checkAnswer(selectedOption, isTimeout) {
+function checkAnswer(selectedOption, isTimeout, clickedBtn) {
     if (answered) return;
     answered = true;
     clearInterval(timerInterval);
 
-    const qData = currentQuizList[current];
+    const qData = quizPool[current];
     const allBtns = document.querySelectorAll(".option-btn");
     const feedbackArea = document.getElementById("feedback");
     const feedbackText = document.getElementById("feedback-text");
     const nextBtn = document.getElementById("nextBtn");
 
-    // 1. Track the state for the final detailed review screen
+    // 1. Track state for the final review screen
     userHistory.push({
         question: qData.q,
         selected: isTimeout ? "[Time expired]" : selectedOption,
@@ -148,17 +149,16 @@ function checkAnswer(selectedOption, isTimeout) {
         status: !isTimeout && selectedOption === qData.answer ? 'correct' : 'incorrect'
     });
 
-    // 2. Lock down all buttons so no further clicks register
+    // 2. Lock down all buttons immediately
     allBtns.forEach(b => b.disabled = true);
 
-    // 3. Conditional behavior based on whether they ran out of time or clicked an answer
+    // 3. Handle visual UI changes based on actions
     if (isTimeout) {
-        // TIMEOUT BEHAVIOR: Do not show the correct answers or explanations here.
+        // TIMEOUT: Keep right answers secret, hide explanation area content
         feedbackText.innerHTML = "<strong>⏳ Time's Up! Proceed to the next question.</strong>";
-        document.getElementById("explanation").innerText = ""; // Clear explanation string
-        feedbackArea.classList.remove("hidden");
+        document.getElementById("explanation").innerText = ""; 
     } else {
-        // STANDARD CLICK BEHAVIOR: Show highlights and descriptions right away
+        // USER CLICKED: Reveal answer highlights and explanation text
         allBtns.forEach(b => {
             if (b.innerText === qData.answer) b.classList.add("correct");
         });
@@ -167,16 +167,17 @@ function checkAnswer(selectedOption, isTimeout) {
             score++;
             feedbackText.innerHTML = "<strong>✅ Correct!</strong>";
         } else {
-            btn.classList.add("incorrect"); // Note: ensure 'btn' is passed if you want to style the clicked choice, or change to allBtns matching logic
+            // FIXED: clickedBtn is now correctly scoped and will not crash the page
+            clickedBtn.classList.add("incorrect");
             feedbackText.innerHTML = "<strong>❌ Incorrect</strong>";
         }
         
         document.getElementById("explanation").innerText = qData.explanation;
-        feedbackArea.classList.remove("hidden");
     }
 
-    // Update the scoring block and enable the button to go to the next module card
+    // 4. Update core tracker stats and revive the next step button
     document.getElementById("score").innerText = `Score: ${score}`;
+    feedbackArea.classList.remove("hidden");
     nextBtn.disabled = false;
 }
 
