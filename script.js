@@ -139,7 +139,7 @@ function checkAnswer(selectedOption, isTimeout) {
     const feedbackText = document.getElementById("feedback-text");
     const nextBtn = document.getElementById("nextBtn");
 
-    // Track state for the detailed review screen
+    // 1. Track the state for the final detailed review screen
     userHistory.push({
         question: qData.q,
         selected: isTimeout ? "[Time expired]" : selectedOption,
@@ -148,25 +148,35 @@ function checkAnswer(selectedOption, isTimeout) {
         status: !isTimeout && selectedOption === qData.answer ? 'correct' : 'incorrect'
     });
 
-    allBtns.forEach(b => {
-        b.disabled = true;
-        if (b.innerText === qData.answer) b.classList.add("correct");
-    });
+    // 2. Lock down all buttons so no further clicks register
+    allBtns.forEach(b => b.disabled = true);
 
+    // 3. Conditional behavior based on whether they ran out of time or clicked an answer
     if (isTimeout) {
-        feedbackText.innerHTML = "<strong>⏳ Time's Up!</strong>";
-    } else if (selectedOption === qData.answer) {
-        score++;
-        feedbackText.innerHTML = "<strong>✅ Correct!</strong>";
-        allBtns.forEach(b => { if(b.innerText === selectedOption) b.classList.add("correct"); });
+        // TIMEOUT BEHAVIOR: Do not show the correct answers or explanations here.
+        feedbackText.innerHTML = "<strong>⏳ Time's Up! Proceed to the next question.</strong>";
+        document.getElementById("explanation").innerText = ""; // Clear explanation string
+        feedbackArea.classList.remove("hidden");
     } else {
-        feedbackText.innerHTML = "<strong>❌ Incorrect</strong>";
-        allBtns.forEach(b => { if(b.innerText === selectedOption) b.classList.add("incorrect"); });
+        // STANDARD CLICK BEHAVIOR: Show highlights and descriptions right away
+        allBtns.forEach(b => {
+            if (b.innerText === qData.answer) b.classList.add("correct");
+        });
+
+        if (selectedOption === qData.answer) {
+            score++;
+            feedbackText.innerHTML = "<strong>✅ Correct!</strong>";
+        } else {
+            btn.classList.add("incorrect"); // Note: ensure 'btn' is passed if you want to style the clicked choice, or change to allBtns matching logic
+            feedbackText.innerHTML = "<strong>❌ Incorrect</strong>";
+        }
+        
+        document.getElementById("explanation").innerText = qData.explanation;
+        feedbackArea.classList.remove("hidden");
     }
 
+    // Update the scoring block and enable the button to go to the next module card
     document.getElementById("score").innerText = `Score: ${score}`;
-    document.getElementById("explanation").innerText = qData.explanation;
-    feedbackArea.classList.remove("hidden");
     nextBtn.disabled = false;
 }
 
